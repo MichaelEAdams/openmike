@@ -16,8 +16,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>openMike.blog — Essays</title>
-<meta name="description" content="Essays and opinions on building, benchmarking, and the machines we think with." />
+<title>openMike.blog — Thoughts</title>
+<meta name="description" content="Thoughts and opinions on building, benchmarking, and the machines we think with." />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -309,7 +309,7 @@
   <div class="volume" id="volume">Sunnyvale · California · USA · Earth</div>
   <hr class="rule" />
   <nav class="primary" id="nav">
-    <a href="#/" data-route="/">Essays</a>
+    <a href="#/" data-route="/">Thoughts</a>
     <a href="#/about" data-route="/about">About</a>
     <a href="#/links" data-route="/links">Links</a>
     <a href="#/contact" data-route="/contact">Contact</a>
@@ -333,9 +333,9 @@
   <div class="frame">
     <div>© <span id="year"></span> openMike.blog · Sunnyvale, CA</div>
     <div class="social">
-      <a href="https://medium.com/" target="_blank" rel="noopener">Medium ↗</a>
-      <a href="https://substack.com/" target="_blank" rel="noopener">Substack ↗</a>
-      <a href="https://agreatinsight.com/" target="_blank" rel="noopener">A Great Insight ↗</a>
+      <a href="#/soon">Medium</a>
+      <a href="#/soon">Substack</a>
+      <a href="#/soon">A Great Insight</a>
     </div>
   </div>
 </footer>
@@ -345,9 +345,11 @@
    SITE CONFIG — edit these freely
    ════════════════════════════════════════════════════════════════ */
 const SITE = {
-  // Cross-post links shown on each article (set to "" to hide)
-  medium:   "https://medium.com/@you",
-  substack: "https://you.substack.com",
+  // Cross-post links shown on each article (set to "" to hide).
+  // Empty for now — the per-article "also on …" line stays hidden until
+  // these point at real profiles.
+  medium:   "",
+  substack: "",
 };
 
 // CONTACT FORM: wired for Netlify Forms (free + unlimited on Netlify).
@@ -363,74 +365,13 @@ const CONTACT_BACKEND = "netlify";
    ════════════════════════════════════════════════════════════════ */
 const POSTS = [
   {
-    slug: "benchmarking-three-minds",
-    title: "On Benchmarking Three Minds at Once",
-    date: "2026-06-14",
-    read: "6 min",
-    dek: "Why simultaneity is the only honest way to test a frontier model.",
+    slug: "coming-soon",
+    title: "Coming Soon",
+    date: "2026-06-19",
+    read: "",
+    dek: "The first entry is on its way.",
     body: `
-<p>There is a quiet dishonesty in most public model comparisons, and it hides inside the word <em>fair</em>. Run a question through one assistant on Monday and another on Thursday, and you have not compared two minds — you have compared two different weeks of the world. The news moved. The weights, perhaps, were silently updated. The only thing your benchmark proves is that time passed.</p>
-
-<p>The fix is unglamorous: ask all three the same thing in the same minute. Same prompt, same clock, no edits. I have come to think of simultaneity as a kind of sacred rule, the one constraint I will not relax no matter how much friction it adds to the workflow.</p>
-
-<h2>The case for the same minute</h2>
-
-<p>Forecasting questions are the cleanest stress test because they have a verdict. A model cannot charm its way past a number that either lands or doesn't. But a forecast is only meaningful relative to the information available when it was made — so if the three answers are even a day apart, you are no longer scoring judgment. You are scoring recency.</p>
-
-<blockquote>A benchmark that drifts in time is not measuring the models. It is measuring the calendar.</blockquote>
-
-<p>So the harness fires all three at once and writes the responses to a small SQLite table before anyone — including me — gets to read them. The lockstep matters more than the cleverness of the question.</p>
-
-<h2>What the numbers won't tell you</h2>
-
-<p>After enough rounds, the scoreboard stops being the interesting part. What you start to see is <em>character</em>: which model hedges, which commits, which one quietly refuses to be pinned to a probability. That texture never shows up in a leaderboard, and it is the most useful thing the whole exercise produces.</p>
-
-<p>The point of measuring three minds at once was never to crown one. It was to watch them disagree under identical conditions, and to learn to read the disagreement.</p>
-`
-  },
-  {
-    slug: "home-lab-as-thinking-tool",
-    title: "The Home Lab as a Thinking Tool",
-    date: "2026-05-30",
-    read: "4 min",
-    dek: "Two small machines on a shelf changed how I reason about problems.",
-    body: `
-<p>People assume a home lab is about saving money on cloud bills, or about hoarding compute for its own sake. Mine earns its keep differently: it is the cheapest place I know to be wrong on purpose.</p>
-
-<p>There are two machines on the shelf. A Mac mini I call <code>Norman</code> and a small Beelink I call <code>Gary</code>. Neither is fast by datacenter standards. What they offer is something a rented instance never quite does — the freedom to break things without a meter running and without a stranger's terms of service deciding what I'm allowed to try.</p>
-
-<h2>Friction is a feature</h2>
-
-<p>When the cost of an experiment drops to nearly zero, you run more of them, and most of them fail, and that is exactly the point. A local model that answers in eight seconds instead of two teaches you patience about what you actually need fast. A flaky mDNS conflict at midnight teaches you more about your network than any tutorial.</p>
-
-<blockquote>The lab's real output isn't uptime. It's the set of intuitions you can only buy with your own mistakes.</blockquote>
-
-<p>I'm not arguing everyone should rack hardware in a closet. I'm arguing that owning the full stack — even a tiny one — changes the questions you're willing to ask. You stop treating the system as a black box you rent and start treating it as a workshop you keep.</p>
-`
-  },
-  {
-    slug: "small-tools-long-half-life",
-    title: "Small Tools, Long Half-Life",
-    date: "2026-05-12",
-    read: "5 min",
-    dek: "The scripts that survive are the ones that did one thing and stopped.",
-    body: `
-<p>I have written a great many programs that no longer run. The ones that survived have something in common, and it is not elegance. It is restraint. They did exactly one thing, refused to grow a second, and asked for nothing from the world that the world wasn't already offering.</p>
-
-<p>My most-used tool is a few hundred lines of standard-library Python with no dependencies at all. It has outlived three laptops and at least two of my opinions about how software should be built. Its longevity is not a triumph of design. It is a triumph of saying no.</p>
-
-<h2>The dependency you don't add</h2>
-
-<p>Every import is a small loan against the future. Most come due quietly, years later, when a package goes unmaintained or a version pin rots. A tool that imports only what ships with the language is a tool you can still run when you've forgotten you wrote it.</p>
-
-<pre><code>$ oracle ask "will it rain on the launch?"
-  → recorded · 3 models · 14:02:11</code></pre>
-
-<p>That's the whole interface. No flags I'll forget, no config file to migrate, no framework to keep current. When the surface area is that small, the thing just keeps working — and "it just keeps working" is, in the end, the only feature users ever truly thank you for.</p>
-
-<blockquote>Software doesn't age from use. It ages from everything it depends on aging around it.</blockquote>
-
-<p>So I've made my peace with small tools. They don't impress anyone in a code review. But they're still here, and most of the impressive ones aren't.</p>
+<p>This space is being set up. The first real entry will land here shortly — check back soon.</p>
 `
   },
 ];
@@ -439,16 +380,14 @@ const POSTS = [
    STATIC PAGES
    ════════════════════════════════════════════════════════════════ */
 const ABOUT = `
-<p>I'm a software engineer in the Bay Area. By day I work on developer-productivity and CI infrastructure; by night I build small tools, run a two-machine home lab, and write down whatever I've been turning over.</p>
-<p>This is where the turning-over goes. Mostly essays about building things, the strange new business of benchmarking machines that think, and the quiet craft of tools that last. Opinions are my own and subject to revision — that's rather the point of writing them down.</p>
-<p>You'll also find my work cross-posted on <a class="inline" href="${SITE.medium}" target="_blank" rel="noopener">Medium</a> and <a class="inline" href="${SITE.substack}" target="_blank" rel="noopener">Substack</a>. The canonical version lives here.</p>
+<p>This is a small, anonymous place for thinking out loud — no byline, no bio, just thoughts written here first and kept honest by being written down.</p>
+<p><em>(More to come — replace this with your own words.)</em></p>
 `;
 
 const LINKS = [
-  { tag:"Project",  name:"A Great Insight",  url:"https://agreatinsight.com",  desc:"A daily editorial benchmarking three frontier AIs on real forecasts." },
-  { tag:"Code",     name:"GitHub",           url:"https://github.com",         desc:"Tools, experiments, and the occasional finished thing." },
-  { tag:"Writing",  name:"Medium",           url:SITE.medium,                  desc:"Cross-posted essays." },
-  { tag:"Writing",  name:"Substack",         url:SITE.substack,                desc:"The same essays, in your inbox." },
+  { tag:"Writing",  name:"Medium",          url:"#/soon",  desc:"Coming soon." },
+  { tag:"Writing",  name:"Substack",        url:"#/soon",  desc:"Coming soon." },
+  { tag:"Project",  name:"A Great Insight", url:"#/soon",  desc:"Coming soon." },
 ];
 
 /* ════════════════════════════════════════════════════════════════
@@ -485,7 +424,7 @@ function renderHome(){
     </article>`).join('');
 
   return `
-    <p class="lede">Essays and opinions on building, benchmarking, and the machines we think with — written here first.</p>
+    <p class="lede">Thoughts and opinions on building, benchmarking, and the machines we think with — written here first.</p>
     <div class="index">${entries}</div>`;
 }
 
@@ -500,7 +439,7 @@ function renderPost(slug){
 
   return `
     <article class="article">
-      <a class="backlink" href="#/">← All essays</a>
+      <a class="backlink" href="#/">← All thoughts</a>
       <div class="meta">
         <span class="folio">${fmtFolio(i)}</span>
         <span>${fmtDate(p.date)}</span>
@@ -524,14 +463,19 @@ function renderAbout(){
 }
 
 function renderLinks(){
-  const rows = LINKS.map(l => `
+  const rows = LINKS.map(l => {
+    const external = !l.url.startsWith('#');
+    const attrs = external ? ' target="_blank" rel="noopener"' : '';
+    const arrow = external ? ' <span class="arr">↗</span>' : '';
+    return `
     <div class="row">
       <div class="tag">${l.tag}</div>
       <div>
-        <div class="name"><a href="${l.url}" target="_blank" rel="noopener">${esc(l.name)} <span class="arr">↗</span></a></div>
+        <div class="name"><a href="${l.url}"${attrs}>${esc(l.name)}${arrow}</a></div>
         <div class="desc">${esc(l.desc)}</div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
   return `<section class="page">
     <div class="eyebrow">Index</div>
     <h1>Links</h1>
@@ -592,6 +536,14 @@ function wireContactForm(){
   });
 }
 
+function renderSoon(){
+  return `<section class="page">
+    <div class="eyebrow">Patience</div>
+    <h1>Coming soon</h1>
+    <p>This one isn't live yet — it's on the way. <a class="inline" href="#/">Return to the index.</a></p>
+  </section>`;
+}
+
 function renderNotFound(){
   return `<section class="page">
     <div class="eyebrow">404</div>
@@ -615,6 +567,7 @@ function router(){
   else if(hash === '/about')                 html = renderAbout();
   else if(hash === '/links')                 html = renderLinks();
   else if(hash === '/contact')               html = renderContact();
+  else if(hash === '/soon')                  html = renderSoon();
   else                                       html = renderNotFound();
 
   app.innerHTML = html;
