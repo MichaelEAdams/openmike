@@ -1,0 +1,630 @@
+<!--
+  ─────────────────────────────────────────────────────────────────────
+  A single-file static blog. Deploy anywhere (GitHub Pages, Netlify,
+  Cloudflare Pages, S3). No build step required.
+
+  TO EDIT:
+    • SITE config ............ line ~ (search "const SITE")
+    • Your posts ............. the POSTS array (search "const POSTS")
+    • About / Links / Contact  search "PAGES" and "LINKS"
+    • Contact form .......... already wired for Netlify Forms (works once
+                               deployed to Netlify; see CONTACT_BACKEND)
+  ─────────────────────────────────────────────────────────────────────
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mike — Essays</title>
+<meta name="description" content="Essays and opinions on building, benchmarking, and the machines we think with." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<style>
+  :root{
+    --paper:#EDEAE2;        /* stony oat — cooler than the usual AI cream */
+    --paper-2:#E6E2D8;      /* faint panel */
+    --ink:#211E18;          /* warm near-black */
+    --muted:#736E63;        /* taupe meta */
+    --hair:#D6D0C4;         /* hairline rule */
+    --teal:#0D7377;         /* the single accent */
+    --teal-deep:#0A5A5D;
+
+    --serif:'Newsreader', Georgia, 'Times New Roman', serif;
+    --mono:'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+    --measure:38rem;        /* reading width */
+    --wide:64rem;           /* page frame */
+  }
+
+  *{ box-sizing:border-box; }
+  html{ -webkit-text-size-adjust:100%; }
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--serif);
+    font-optical-sizing:auto;
+    font-size:20px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  ::selection{ background:rgba(13,115,119,.18); }
+
+  a{ color:inherit; text-decoration:none; }
+
+  .frame{
+    max-width:var(--wide);
+    margin:0 auto;
+    padding:0 1.6rem;
+  }
+
+  /* ── Masthead ───────────────────────────────────────────────── */
+  .masthead{
+    padding:3.6rem 0 0;
+    text-align:center;
+  }
+  .wordmark{
+    font-size:clamp(2.4rem, 6vw, 3.4rem);
+    font-weight:500;
+    letter-spacing:-.02em;
+    line-height:1;
+    margin:0;
+  }
+  .wordmark a{ display:inline-block; }
+  .wordmark .amp{ color:var(--teal); font-style:italic; }
+  .volume{
+    font-family:var(--mono);
+    font-size:.72rem;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:1.05rem 0 1.5rem;
+  }
+  .rule{
+    height:1px; border:0;
+    background:linear-gradient(to right, transparent, var(--teal) 18%, var(--teal) 82%, transparent);
+    opacity:.55;
+    margin:0 auto;
+    max-width:var(--measure);
+  }
+
+  /* ── Navigation ─────────────────────────────────────────────── */
+  nav.primary{
+    display:flex; justify-content:center; gap:1.7rem; flex-wrap:wrap;
+    padding:1.4rem 0 0;
+  }
+  nav.primary a{
+    font-family:var(--mono);
+    font-size:.72rem;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--muted);
+    padding-bottom:.25rem;
+    border-bottom:1.5px solid transparent;
+    transition:color .18s ease, border-color .18s ease;
+  }
+  nav.primary a:hover{ color:var(--ink); }
+  nav.primary a.active{ color:var(--ink); border-bottom-color:var(--teal); }
+
+  main{ padding:3.2rem 0 2rem; }
+
+  /* ── Home: entry index ──────────────────────────────────────── */
+  .lede{
+    max-width:var(--measure); margin:0 auto 3rem;
+    text-align:center;
+    font-size:1.18rem; font-style:italic; color:var(--muted);
+    line-height:1.6;
+  }
+  .index{ max-width:var(--measure); margin:0 auto; }
+  .entry{
+    padding:2rem 0;
+    border-top:1px solid var(--hair);
+  }
+  .entry:first-child{ border-top:0; padding-top:.4rem; }
+  .entry .meta{
+    font-family:var(--mono);
+    font-size:.72rem; letter-spacing:.08em;
+    color:var(--muted);
+    display:flex; gap:.85rem; flex-wrap:wrap; align-items:baseline;
+    margin-bottom:.6rem;
+  }
+  .entry .folio{ color:var(--teal-deep); }
+  .entry h2{
+    font-size:1.72rem; font-weight:500; line-height:1.2;
+    letter-spacing:-.01em; margin:0 0 .35rem;
+  }
+  .entry h2 a{ background-image:linear-gradient(var(--teal),var(--teal)); background-size:0 1px;
+    background-repeat:no-repeat; background-position:0 100%; transition:background-size .25s ease; }
+  .entry:hover h2 a{ background-size:100% 1px; }
+  .entry .dek{ color:var(--muted); font-style:italic; font-size:1.05rem; margin:0; }
+
+  /* ── Article ────────────────────────────────────────────────── */
+  .article{ max-width:var(--measure); margin:0 auto; }
+  .backlink{
+    font-family:var(--mono); font-size:.72rem; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--muted);
+    display:inline-block; margin-bottom:2.4rem;
+  }
+  .backlink:hover{ color:var(--teal-deep); }
+  .article .meta{
+    font-family:var(--mono); font-size:.72rem; letter-spacing:.07em;
+    color:var(--muted);
+    display:flex; gap:.8rem; flex-wrap:wrap; align-items:baseline;
+    margin-bottom:1.1rem;
+  }
+  .article .meta .folio{ color:var(--teal-deep); }
+  .article .meta .xpost a{ color:var(--muted); border-bottom:1px solid var(--hair); }
+  .article .meta .xpost a:hover{ color:var(--teal-deep); border-color:var(--teal); }
+  .article h1{
+    font-size:clamp(2.1rem, 5.2vw, 3.1rem);
+    font-weight:500; letter-spacing:-.02em; line-height:1.08;
+    margin:0 0 2.2rem;
+  }
+  .article-body{ font-size:1.22rem; line-height:1.72; }
+  .article-body > p:first-of-type::first-letter{
+    font-size:3.6em; line-height:.78; float:left;
+    padding:.06em .12em .02em 0; font-weight:500; color:var(--teal-deep);
+  }
+  .article-body p{ margin:0 0 1.4rem; }
+  .article-body h2{
+    font-size:1.5rem; font-weight:600; letter-spacing:-.01em;
+    margin:2.8rem 0 1rem;
+  }
+  .article-body a{ color:var(--teal-deep); border-bottom:1px solid var(--hair);
+    transition:border-color .18s ease; }
+  .article-body a:hover{ border-color:var(--teal); }
+  .article-body blockquote{
+    margin:2rem 0; padding:.2rem 0 .2rem 1.4rem;
+    border-left:2px solid var(--teal);
+    font-style:italic; color:#4a463d;
+  }
+  .article-body code{
+    font-family:var(--mono); font-size:.82em;
+    background:var(--paper-2); padding:.12em .4em; border-radius:3px;
+  }
+  .article-body pre{
+    font-family:var(--mono); font-size:.82rem; line-height:1.55;
+    background:#26231c; color:#e9e4d6;
+    padding:1.1rem 1.25rem; border-radius:6px; overflow-x:auto;
+    margin:1.6rem 0;
+  }
+  .article-body pre code{ background:none; padding:0; }
+  .article-body hr{
+    border:0; height:1px; background:var(--hair); margin:2.4rem 0;
+  }
+  .article-body ul,.article-body ol{ margin:0 0 1.4rem; padding-left:1.3rem; }
+  .article-body li{ margin:.4rem 0; }
+
+  .post-nav{
+    display:flex; justify-content:space-between; gap:1rem;
+    border-top:1px solid var(--hair); margin-top:3.4rem; padding-top:1.6rem;
+    font-family:var(--mono); font-size:.72rem; letter-spacing:.06em; color:var(--muted);
+  }
+  .post-nav a:hover{ color:var(--teal-deep); }
+  .post-nav .spacer{ flex:1; }
+
+  /* ── Static pages (about/links/contact) ─────────────────────── */
+  .page{ max-width:var(--measure); margin:0 auto; }
+  .page .eyebrow{
+    font-family:var(--mono); font-size:.72rem; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--teal-deep); margin-bottom:.8rem;
+  }
+  .page h1{
+    font-size:clamp(2rem,4.6vw,2.7rem); font-weight:500;
+    letter-spacing:-.02em; line-height:1.1; margin:0 0 1.8rem;
+  }
+  .page p{ font-size:1.14rem; line-height:1.7; margin:0 0 1.3rem; color:#34302a; }
+  .page a.inline{ color:var(--teal-deep); border-bottom:1px solid var(--hair); }
+  .page a.inline:hover{ border-color:var(--teal); }
+
+  /* Links page — bibliography style */
+  .linklist{ margin-top:.5rem; }
+  .linklist .row{
+    display:grid; grid-template-columns:8.5rem 1fr; gap:1rem;
+    align-items:baseline;
+    padding:1.05rem 0; border-top:1px solid var(--hair);
+  }
+  .linklist .row:first-child{ border-top:0; }
+  .linklist .tag{
+    font-family:var(--mono); font-size:.7rem; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--muted); padding-top:.18rem;
+  }
+  .linklist .name{ font-size:1.2rem; }
+  .linklist .name a{ background-image:linear-gradient(var(--teal),var(--teal));
+    background-size:0 1px; background-repeat:no-repeat; background-position:0 100%;
+    transition:background-size .25s ease; }
+  .linklist .row:hover .name a{ background-size:100% 1px; }
+  .linklist .name .arr{ color:var(--teal); font-family:var(--mono); font-size:.85em; }
+  .linklist .desc{ color:var(--muted); font-size:.98rem; font-style:italic; margin-top:.15rem; }
+
+  /* Contact form */
+  form.contact{ margin-top:1.6rem; }
+  .field{ margin-bottom:1.2rem; }
+  .field label{
+    display:block; font-family:var(--mono); font-size:.7rem;
+    letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+    margin-bottom:.45rem;
+  }
+  .field input, .field textarea{
+    width:100%; font-family:var(--serif); font-size:1.05rem; color:var(--ink);
+    background:var(--paper); border:1px solid var(--hair); border-radius:4px;
+    padding:.7rem .85rem; transition:border-color .18s ease;
+  }
+  .field input:focus, .field textarea:focus{
+    outline:none; border-color:var(--teal);
+  }
+  .field textarea{ min-height:9rem; resize:vertical; }
+  button.send{
+    font-family:var(--mono); font-size:.74rem; letter-spacing:.14em;
+    text-transform:uppercase; cursor:pointer;
+    background:var(--ink); color:var(--paper);
+    border:1px solid var(--ink); border-radius:4px;
+    padding:.7rem 1.5rem; transition:background .18s ease, color .18s ease;
+  }
+  button.send:hover{ background:var(--teal-deep); border-color:var(--teal-deep); }
+
+  /* ── Footer ─────────────────────────────────────────────────── */
+  footer{
+    border-top:1px solid var(--hair);
+    margin-top:4.5rem; padding:2.2rem 0 3rem;
+  }
+  footer .frame{
+    display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;
+    font-family:var(--mono); font-size:.7rem; letter-spacing:.08em;
+    color:var(--muted); text-transform:uppercase;
+  }
+  footer a{ color:var(--muted); }
+  footer a:hover{ color:var(--teal-deep); }
+  footer .social{ display:flex; gap:1.2rem; flex-wrap:wrap; }
+
+  /* ── Focus & motion ─────────────────────────────────────────── */
+  a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible{
+    outline:2px solid var(--teal); outline-offset:3px; border-radius:2px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; }
+  }
+
+  /* ── Mobile ─────────────────────────────────────────────────── */
+  @media (max-width:640px){
+    body{ font-size:18px; }
+    .masthead{ padding-top:2.6rem; }
+    main{ padding-top:2.4rem; }
+    .article-body{ font-size:1.12rem; }
+    .linklist .row{ grid-template-columns:1fr; gap:.25rem; }
+    .linklist .tag{ padding-top:0; }
+    footer .frame{ flex-direction:column; gap:1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="frame masthead">
+  <h1 class="wordmark"><a href="#/">Mike<span class="amp"> · </span><span style="font-style:italic;font-weight:400;">essays</span></a></h1>
+  <div class="volume" id="volume">A Journal · Vol. MMXXVI · Cupertino</div>
+  <hr class="rule" />
+  <nav class="primary" id="nav">
+    <a href="#/" data-route="/">Essays</a>
+    <a href="#/about" data-route="/about">About</a>
+    <a href="#/links" data-route="/links">Links</a>
+    <a href="#/contact" data-route="/contact">Contact</a>
+  </nav>
+</header>
+
+<main class="frame" id="app"><!-- rendered by router --></main>
+
+<!--
+  Netlify form detection. This hidden copy lets Netlify's deploy-time
+  crawler discover the "contact" form even though the visible one is
+  rendered by JavaScript. Field names must match the real form.
+-->
+<form name="contact" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input type="text" name="name" />
+  <input type="email" name="email" />
+  <textarea name="message"></textarea>
+</form>
+
+<footer>
+  <div class="frame">
+    <div>© <span id="year"></span> Mike · Cupertino, CA</div>
+    <div class="social">
+      <a href="https://medium.com/" target="_blank" rel="noopener">Medium ↗</a>
+      <a href="https://substack.com/" target="_blank" rel="noopener">Substack ↗</a>
+      <a href="https://agreatinsight.com/" target="_blank" rel="noopener">A Great Insight ↗</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ════════════════════════════════════════════════════════════════
+   SITE CONFIG — edit these freely
+   ════════════════════════════════════════════════════════════════ */
+const SITE = {
+  // Cross-post links shown on each article (set to "" to hide)
+  medium:   "https://medium.com/@you",
+  substack: "https://you.substack.com",
+};
+
+// CONTACT FORM: wired for Netlify Forms (free + unlimited on Netlify).
+// Works once deployed to Netlify; does nothing when opening the file
+// locally (file://) since there's no server to receive the POST.
+// Leaving Netlify someday? Swap to Formspree/Web3Forms by changing the
+// form's action to your endpoint in renderContact().
+const CONTACT_BACKEND = "netlify";
+
+/* ════════════════════════════════════════════════════════════════
+   POSTS — newest first. `body` is plain HTML.
+   To add a post: copy a block, change slug/title/date/body.
+   ════════════════════════════════════════════════════════════════ */
+const POSTS = [
+  {
+    slug: "benchmarking-three-minds",
+    title: "On Benchmarking Three Minds at Once",
+    date: "2026-06-14",
+    read: "6 min",
+    dek: "Why simultaneity is the only honest way to test a frontier model.",
+    body: `
+<p>There is a quiet dishonesty in most public model comparisons, and it hides inside the word <em>fair</em>. Run a question through one assistant on Monday and another on Thursday, and you have not compared two minds — you have compared two different weeks of the world. The news moved. The weights, perhaps, were silently updated. The only thing your benchmark proves is that time passed.</p>
+
+<p>The fix is unglamorous: ask all three the same thing in the same minute. Same prompt, same clock, no edits. I have come to think of simultaneity as a kind of sacred rule, the one constraint I will not relax no matter how much friction it adds to the workflow.</p>
+
+<h2>The case for the same minute</h2>
+
+<p>Forecasting questions are the cleanest stress test because they have a verdict. A model cannot charm its way past a number that either lands or doesn't. But a forecast is only meaningful relative to the information available when it was made — so if the three answers are even a day apart, you are no longer scoring judgment. You are scoring recency.</p>
+
+<blockquote>A benchmark that drifts in time is not measuring the models. It is measuring the calendar.</blockquote>
+
+<p>So the harness fires all three at once and writes the responses to a small SQLite table before anyone — including me — gets to read them. The lockstep matters more than the cleverness of the question.</p>
+
+<h2>What the numbers won't tell you</h2>
+
+<p>After enough rounds, the scoreboard stops being the interesting part. What you start to see is <em>character</em>: which model hedges, which commits, which one quietly refuses to be pinned to a probability. That texture never shows up in a leaderboard, and it is the most useful thing the whole exercise produces.</p>
+
+<p>The point of measuring three minds at once was never to crown one. It was to watch them disagree under identical conditions, and to learn to read the disagreement.</p>
+`
+  },
+  {
+    slug: "home-lab-as-thinking-tool",
+    title: "The Home Lab as a Thinking Tool",
+    date: "2026-05-30",
+    read: "4 min",
+    dek: "Two small machines on a shelf changed how I reason about problems.",
+    body: `
+<p>People assume a home lab is about saving money on cloud bills, or about hoarding compute for its own sake. Mine earns its keep differently: it is the cheapest place I know to be wrong on purpose.</p>
+
+<p>There are two machines on the shelf. A Mac mini I call <code>Norman</code> and a small Beelink I call <code>Gary</code>. Neither is fast by datacenter standards. What they offer is something a rented instance never quite does — the freedom to break things without a meter running and without a stranger's terms of service deciding what I'm allowed to try.</p>
+
+<h2>Friction is a feature</h2>
+
+<p>When the cost of an experiment drops to nearly zero, you run more of them, and most of them fail, and that is exactly the point. A local model that answers in eight seconds instead of two teaches you patience about what you actually need fast. A flaky mDNS conflict at midnight teaches you more about your network than any tutorial.</p>
+
+<blockquote>The lab's real output isn't uptime. It's the set of intuitions you can only buy with your own mistakes.</blockquote>
+
+<p>I'm not arguing everyone should rack hardware in a closet. I'm arguing that owning the full stack — even a tiny one — changes the questions you're willing to ask. You stop treating the system as a black box you rent and start treating it as a workshop you keep.</p>
+`
+  },
+  {
+    slug: "small-tools-long-half-life",
+    title: "Small Tools, Long Half-Life",
+    date: "2026-05-12",
+    read: "5 min",
+    dek: "The scripts that survive are the ones that did one thing and stopped.",
+    body: `
+<p>I have written a great many programs that no longer run. The ones that survived have something in common, and it is not elegance. It is restraint. They did exactly one thing, refused to grow a second, and asked for nothing from the world that the world wasn't already offering.</p>
+
+<p>My most-used tool is a few hundred lines of standard-library Python with no dependencies at all. It has outlived three laptops and at least two of my opinions about how software should be built. Its longevity is not a triumph of design. It is a triumph of saying no.</p>
+
+<h2>The dependency you don't add</h2>
+
+<p>Every import is a small loan against the future. Most come due quietly, years later, when a package goes unmaintained or a version pin rots. A tool that imports only what ships with the language is a tool you can still run when you've forgotten you wrote it.</p>
+
+<pre><code>$ oracle ask "will it rain on the launch?"
+  → recorded · 3 models · 14:02:11</code></pre>
+
+<p>That's the whole interface. No flags I'll forget, no config file to migrate, no framework to keep current. When the surface area is that small, the thing just keeps working — and "it just keeps working" is, in the end, the only feature users ever truly thank you for.</p>
+
+<blockquote>Software doesn't age from use. It ages from everything it depends on aging around it.</blockquote>
+
+<p>So I've made my peace with small tools. They don't impress anyone in a code review. But they're still here, and most of the impressive ones aren't.</p>
+`
+  },
+];
+
+/* ════════════════════════════════════════════════════════════════
+   STATIC PAGES
+   ════════════════════════════════════════════════════════════════ */
+const ABOUT = `
+<p>I'm a software engineer in the Bay Area. By day I work on developer-productivity and CI infrastructure; by night I build small tools, run a two-machine home lab, and write down whatever I've been turning over.</p>
+<p>This is where the turning-over goes. Mostly essays about building things, the strange new business of benchmarking machines that think, and the quiet craft of tools that last. Opinions are my own and subject to revision — that's rather the point of writing them down.</p>
+<p>You'll also find my work cross-posted on <a class="inline" href="${SITE.medium}" target="_blank" rel="noopener">Medium</a> and <a class="inline" href="${SITE.substack}" target="_blank" rel="noopener">Substack</a>. The canonical version lives here.</p>
+`;
+
+const LINKS = [
+  { tag:"Project",  name:"A Great Insight",  url:"https://agreatinsight.com",  desc:"A daily editorial benchmarking three frontier AIs on real forecasts." },
+  { tag:"Code",     name:"GitHub",           url:"https://github.com",         desc:"Tools, experiments, and the occasional finished thing." },
+  { tag:"Writing",  name:"Medium",           url:SITE.medium,                  desc:"Cross-posted essays." },
+  { tag:"Writing",  name:"Substack",         url:SITE.substack,                desc:"The same essays, in your inbox." },
+];
+
+/* ════════════════════════════════════════════════════════════════
+   ROUTER  (everything below is plumbing — rarely needs editing)
+   ════════════════════════════════════════════════════════════════ */
+const app  = document.getElementById('app');
+const navEl = document.getElementById('nav');
+document.getElementById('year').textContent = new Date().getFullYear();
+
+const fmtDate = iso => {
+  const [y,m,d] = iso.split('-');
+  return `${y}·${m}·${d}`;
+};
+const fmtFolio = i => 'No.' + String(POSTS.length - i).padStart(2,'0');
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+function xpostLine(){
+  const out = [];
+  if(SITE.medium)   out.push(`<a href="${SITE.medium}" target="_blank" rel="noopener">Medium ↗</a>`);
+  if(SITE.substack) out.push(`<a href="${SITE.substack}" target="_blank" rel="noopener">Substack ↗</a>`);
+  return out.length ? `<span class="xpost">also on ${out.join(' · ')}</span>` : '';
+}
+
+function renderHome(){
+  const entries = POSTS.map((p,i) => `
+    <article class="entry">
+      <div class="meta">
+        <span class="folio">${fmtFolio(i)}</span>
+        <span>${fmtDate(p.date)}</span>
+        <span>${p.read}</span>
+      </div>
+      <h2><a href="#/post/${p.slug}">${esc(p.title)}</a></h2>
+      <p class="dek">${esc(p.dek)}</p>
+    </article>`).join('');
+
+  return `
+    <p class="lede">Essays and opinions on building, benchmarking, and the machines we think with — written here first.</p>
+    <div class="index">${entries}</div>`;
+}
+
+function renderPost(slug){
+  const i = POSTS.findIndex(p => p.slug === slug);
+  if(i === -1) return renderNotFound();
+  const p = POSTS[i];
+  const prev = POSTS[i+1];          // older
+  const next = POSTS[i-1];          // newer
+  const prevHtml = prev ? `<a href="#/post/${prev.slug}">← ${esc(prev.title)}</a>` : '<span></span>';
+  const nextHtml = next ? `<a href="#/post/${next.slug}">${esc(next.title)} →</a>` : '<span></span>';
+
+  return `
+    <article class="article">
+      <a class="backlink" href="#/">← All essays</a>
+      <div class="meta">
+        <span class="folio">${fmtFolio(i)}</span>
+        <span>${fmtDate(p.date)}</span>
+        <span>${p.read}</span>
+        ${xpostLine()}
+      </div>
+      <h1>${esc(p.title)}</h1>
+      <div class="article-body">${p.body}</div>
+      <div class="post-nav">
+        ${prevHtml}<span class="spacer"></span>${nextHtml}
+      </div>
+    </article>`;
+}
+
+function renderAbout(){
+  return `<section class="page">
+    <div class="eyebrow">Colophon</div>
+    <h1>About</h1>
+    ${ABOUT}
+  </section>`;
+}
+
+function renderLinks(){
+  const rows = LINKS.map(l => `
+    <div class="row">
+      <div class="tag">${l.tag}</div>
+      <div>
+        <div class="name"><a href="${l.url}" target="_blank" rel="noopener">${esc(l.name)} <span class="arr">↗</span></a></div>
+        <div class="desc">${esc(l.desc)}</div>
+      </div>
+    </div>`).join('');
+  return `<section class="page">
+    <div class="eyebrow">Index</div>
+    <h1>Links</h1>
+    <p>A short bibliography of where else I exist on the web.</p>
+    <div class="linklist">${rows}</div>
+  </section>`;
+}
+
+function renderContact(){
+  return `<section class="page">
+    <div class="eyebrow">Correspondence</div>
+    <h1>Contact</h1>
+    <p>Have a disagreement, a correction, or something you're working on? I read everything. The fastest way to reach me is below.</p>
+    <form class="contact" id="contactForm" name="contact" method="POST"
+          data-netlify="true" netlify-honeypot="bot-field">
+      <input type="hidden" name="form-name" value="contact" />
+      <p hidden><label>Leave blank: <input name="bot-field" /></label></p>
+      <div class="field">
+        <label for="name">Name</label>
+        <input id="name" name="name" type="text" autocomplete="name" required />
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="email" required />
+      </div>
+      <div class="field">
+        <label for="message">Message</label>
+        <textarea id="message" name="message" required></textarea>
+      </div>
+      <button class="send" type="submit">Send note</button>
+      <p id="formStatus" class="dek" style="margin-top:1.1rem;font-style:italic;min-height:1.2em;"></p>
+    </form>
+  </section>`;
+}
+
+function wireContactForm(){
+  const form = document.getElementById('contactForm');
+  if(!form) return;
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const status = document.getElementById('formStatus');
+    status.style.color = 'var(--muted)';
+    status.textContent = 'Sending…';
+    try{
+      const res = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(new FormData(form)).toString()
+      });
+      if(!res.ok) throw new Error(res.status);
+      form.reset();
+      status.style.color = 'var(--teal-deep)';
+      status.textContent = 'Thank you — your note is on its way.';
+    }catch(err){
+      status.style.color = '#9a3b2f';
+      status.textContent = 'Something went wrong. Email me directly instead.';
+    }
+  });
+}
+
+function renderNotFound(){
+  return `<section class="page">
+    <div class="eyebrow">404</div>
+    <h1>Nothing filed here</h1>
+    <p>That entry doesn't exist — it may have been renamed. <a class="inline" href="#/">Return to the index.</a></p>
+  </section>`;
+}
+
+function setActiveNav(route){
+  const base = '/' + (route.split('/')[1] || '');
+  navEl.querySelectorAll('a').forEach(a => {
+    a.classList.toggle('active', a.dataset.route === base);
+  });
+}
+
+function router(){
+  const hash = location.hash.replace(/^#/, '') || '/';
+  let html;
+  if(hash === '/' || hash === '')            html = renderHome();
+  else if(hash.startsWith('/post/'))         html = renderPost(hash.slice(6));
+  else if(hash === '/about')                 html = renderAbout();
+  else if(hash === '/links')                 html = renderLinks();
+  else if(hash === '/contact')               html = renderContact();
+  else                                       html = renderNotFound();
+
+  app.innerHTML = html;
+  if(hash === '/contact') wireContactForm();
+  setActiveNav(hash);
+  window.scrollTo({ top:0, behavior:'instant' in window ? 'instant' : 'auto' });
+}
+
+window.addEventListener('hashchange', router);
+router();
+</script>
+</body>
+</html>

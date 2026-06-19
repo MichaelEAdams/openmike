@@ -1,0 +1,6 @@
+# Netlify configuration for openmike — a single-file static site.
+# No build step: publish the repo root as-is.
+
+[build]
+  publish = "."
+  command = ""
